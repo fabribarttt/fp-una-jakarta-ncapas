@@ -1,0 +1,38 @@
+services:
+  postgres_db:
+    image: postgres:16-alpine
+    container_name: project1_postgres
+    environment:
+      POSTGRES_DB: project_db
+      POSTGRES_USER: project
+      POSTGRES_PASSWORD: project
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - backend-net
+
+  web-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: java_tomcat_app
+    ports:
+      - "8080:8080"
+    restart: always
+    environment:
+      DB_URL: jdbc:postgresql://postgres_db:5432/project_db
+      DB_USER: project
+      DB_PASS: project123
+    depends_on:
+      - postgres_db
+    networks:
+      - backend-net
+
+volumes:
+  postgres_data:
+
+networks:
+  backend-net:
+    driver: bridge
