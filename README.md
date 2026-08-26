@@ -40,4 +40,4 @@ docker compose up --build
 docker compose stop
 
 # Iniciar nuevamente los contenedores detenidos (sin recompilar)
-docker compose startss
+docker compose start
