@@ -70,7 +70,10 @@
                                 <td th:text="${producto.precio}"></td>
                                 <td class="text-end">
                                     <button class="btn btn-sm btn-outline-warning me-1" data-bs-toggle="modal"
-                                        data-bs-target="#editModal">Modificar</button>
+                                        data-bs-target="#editModal"
+                                        th:attr="onclick=|abrirModalEditar(${producto.id}, '${producto.producto}', ${producto.cantidad}, ${producto.precio})|">
+                                        Modificar
+                                    </button>
                                     <button class="btn btn-sm btn-danger"
                                         th:attr="hx-delete=@{/productos(id=${producto.id})}"
                                         th:data-target="'#producto-' + ${producto.id}" hx-target="closest tr"
@@ -95,28 +98,33 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header bg-warning">
-                    <h5 class="modal-title">Modificar Producto P01</h5>
+                    <h5 class="modal-title" id="editModalTitle">Modificar Producto</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <form class="row g-3">
+                    <input type="hidden" id="editId" name="id">
+                    <div class="row g-3">
                         <div class="col-6">
                             <label class="form-label">Cantidad</label>
-                            <input type="number" class="form-control" value="">
+                            <input type="number" class="form-control" id="editCantidad" name="cantidad">
                         </div>
                         <div class="col-6">
                             <label class="form-label">Precio</label>
-                            <input type="number" class="form-control" value="" step="0.01">
+                            <input type="number" class="form-control" id="editPrecio" name="precio" step="0.01">
                         </div>
                         <div class="col-12">
                             <label class="form-label">Producto</label>
-                            <input type="text" class="form-control" value="">
+                            <input type="text" class="form-control" id="editProducto" name="nombreProducto">
                         </div>
-                    </form>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-warning" data-bs-dismiss="modal">Guardar Cambios</button>
+                    <button type="button" class="btn btn-warning" hx-put="/productos"
+                        hx-include="#editId, #editCantidad, #editPrecio, #editProducto" hx-swap="none"
+                        data-bs-dismiss="modal">
+                        Guardar Cambios
+                    </button>
                 </div>
             </div>
         </div>
@@ -127,6 +135,18 @@
     <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.10/dist/htmx.min.js"
         integrity="sha384-H5SrcfygHmAuTDZphMHqBJLc3FhssKjG7w/CeCpFReSfwBWDTKpkzPP8c+cLsK+V"
         crossorigin="anonymous"></script>
+    <script>
+        htmx.config.methodsThatUseUrlParams = ["get", "put"];
+    </script>
+    <script>
+        function abrirModalEditar(id, producto, cantidad, precio) {
+            document.getElementById('editId').value = id;
+            document.getElementById('editProducto').value = producto;
+            document.getElementById('editCantidad').value = cantidad;
+            document.getElementById('editPrecio').value = precio;
+            document.getElementById('editModalTitle').innerText = 'Modificar: ' + producto;
+        }
+    </script>
 </body>
 
 </html>

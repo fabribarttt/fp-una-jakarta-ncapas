@@ -117,8 +117,40 @@ public class ProductoServlet extends HttpServlet {
                 em.close();
             }
         }
-        
+
         resp.setStatus(HttpServletResponse.SC_OK);
 
     }
+    
+    @Override
+    protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    req.setCharacterEncoding("UTF-8");
+
+    Long id = Long.parseLong(req.getParameter("id"));
+    String nombreProducto = req.getParameter("nombreProducto");
+    Integer cantidad = Integer.parseInt(req.getParameter("cantidad"));
+    Double precio = Double.parseDouble(req.getParameter("precio"));
+
+    EntityManager em = emf.createEntityManager();
+    try {
+        em.getTransaction().begin();
+        Producto producto = em.find(Producto.class, id);
+        if (producto != null) {
+            producto.setProducto(nombreProducto);
+            producto.setCantidad(cantidad);
+            producto.setPrecio(precio);
+        }
+        em.getTransaction().commit(); // JPA detecta los cambios solo (dirty checking), no hace falta merge()
+    } catch (Exception e) {
+        if (em.getTransaction().isActive()) {
+            em.getTransaction().rollback();
+        }
+        throw new ServletException("Error al actualizar en la base de datos", e);
+    } finally {
+        em.close();
+    }
+
+    resp.setHeader("HX-Refresh", "true"); // le dice a htmx que recargue la página
+    resp.setStatus(HttpServletResponse.SC_OK);
+}
 }
